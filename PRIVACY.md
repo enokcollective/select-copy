@@ -32,4 +32,4 @@ information or user content. Everything happens locally in your browser.
 ## Contact
 
 Questions? Open an issue at
-https://github.com/chandlerroth/select-copy/issues.
+https://github.com/enokcollective/select-copy/issues.
