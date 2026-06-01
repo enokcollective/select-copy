@@ -3,7 +3,8 @@
   "name": "Select Copy",
   "version": "1.0.0",
   "description": "Automatically copies highlighted text to your clipboard the moment you finish selecting it.",
-  "permissions": ["storage"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqqf9nQb8tTHJ0VwDUxs0tMyNBzbUi+piBMgbhIE20Ee43fcrARwNTELJagjUT8zqCRkH1aROtprVvUod3ez/w02DK4ypcfaBE9rBLereZsjRWygcmSCVLRomee7WNYf/UPZhLaWR9OGa9OfZY68x/jA5OO1ypne92HOXrI0PO9tuNBCG+zK+nxGBM5XKkvDbsdxPuzhXo7VF7972j0aCWyS0WgiNwWTy5HfEECBBPkoN59d/WO55Fvp9FvJFNcIja1PfZkt7NkciEoBuSHy9KqIm6XI9KL387SYu2hyTIwkcB9odhVtgnUHVJp+3qsAOlj35CGzho/knpYmusYp1vwIDAQAB",
+  "permissions": ["storage", "nativeMessaging"],
   "background": {
     "service_worker": "background.js"
   },

@@ -65,6 +65,32 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
+// Native-messaging handshake with the Select Copy macOS app. While this port is
+// open, the app knows this browser is "covered" by the extension and skips its
+// own copy-on-select here (so we don't double-copy). Holding the port open also
+// keeps the MV3 service worker alive. If the native host isn't installed the
+// connect fails harmless-ly; we just retry later. No-op on Windows/Linux where
+// the app doesn't exist.
+const NATIVE_HOST = "co.enok.selectcopy";
+let nativePort = null;
+
+function connectNativeHost() {
+  try {
+    nativePort = chrome.runtime.connectNative(NATIVE_HOST);
+    nativePort.onDisconnect.addListener(() => {
+      nativePort = null;
+      // Back off and retry; the app may not be running yet.
+      setTimeout(connectNativeHost, 5000);
+    });
+  } catch (_) {
+    nativePort = null;
+    setTimeout(connectNativeHost, 30000);
+  }
+}
+
+connectNativeHost();
+chrome.runtime.onStartup.addListener(connectNativeHost);
+
 let flashTimer = null;
 async function flash() {
   if (!(await isEnabled())) return;

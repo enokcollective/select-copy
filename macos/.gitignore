@@ -1,0 +1,9 @@
+.build/
+build/
+*.xcodeproj
+.swiftpm/
+
+# Extension signing key — public key lives in ../manifest.json ("key"); the
+# private key must never be committed to this public repo.
+extension-signing-key.pem
+.extension-pubkey.b64.txt
