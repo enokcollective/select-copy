@@ -31,5 +31,5 @@ information or user content. Everything happens locally in your browser.
 
 ## Contact
 
-Questions? Email chandler@enok.co or open an issue at
+Questions? Open an issue at
 https://github.com/chandlerroth/select-copy/issues.
