@@ -3,6 +3,8 @@
 A Chrome extension that **automatically copies highlighted text to your clipboard**
 the moment you finish selecting it, with no manual copy needed.
 
+<img width="1132" height="805" alt="Screenshot 2026-06-01 at 13 29 22" src="https://github.com/user-attachments/assets/bef4713c-6417-4947-9fe5-9193eed3df3a" />
+
 ## Features
 
 - **Copy on selection**: release the mouse (or finish a shift+arrow keyboard
