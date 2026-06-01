@@ -1,0 +1,9 @@
+{
+  "name": "select-copy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that copies highlighted text to the clipboard on selection.",
+  "scripts": {
+    "build": "bun run build.ts"
+  }
+}
