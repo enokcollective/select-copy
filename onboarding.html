@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Select Copy</title>
+  <style>
+    :root {
+      --green: #2e7d32;
+      --green-dark: #1b5e20;
+      --green-light: #a5d6a7;
+      --green-bg: #e8f5e9;
+      --ink: #1a2e1c;
+      --muted: #5b6b5d;
+      --card: #ffffff;
+      --line: #d7e6d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 56px 24px 80px; }
+
+    header { text-align: center; margin-bottom: 40px; }
+    .logo {
+      width: 72px; height: 72px; border-radius: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--green);
+      box-shadow: 0 8px 24px rgba(46, 125, 50, 0.28);
+      margin-bottom: 18px;
+    }
+    .logo svg { width: 44px; height: 44px; }
+    h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.02em; }
+    .tagline { font-size: 17px; color: var(--muted); margin: 0; }
+
+    /* ---- Step cards ---- */
+    .step {
+      display: none;
+      background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+      padding: 22px 24px; margin-bottom: 18px;
+      box-shadow: 0 6px 22px rgba(20, 50, 22, 0.05);
+      transition: border-color .25s, background .25s;
+    }
+    .step.active { display: block; }
+    .step.done { border-color: var(--green-light); background: #f6fbf6; }
+    .step-head { display: flex; gap: 14px; align-items: flex-start; }
+    .step-num {
+      flex: none; width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green-bg); color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700;
+      transition: background .25s, color .25s;
+    }
+    .step.done .step-num { background: var(--green); color: #fff; }
+    .step-num .check { display: none; width: 18px; height: 18px; }
+    .step.done .step-num .check { display: block; }
+    .step.done .step-num .num { display: none; }
+    .step-titles { flex: 1; }
+    .step-titles h2 { font-size: 18px; margin: 4px 0 3px; letter-spacing: -0.01em; }
+    .step-sub { margin: 0; font-size: 14.5px; color: var(--muted); }
+    .step-body { margin-top: 16px; padding-left: 46px; }
+    @media (max-width: 520px) { .step-body { padding-left: 0; } }
+
+    /* ---- Step 1: copy demo ---- */
+    .sample { font-size: 18px; margin: 0; user-select: text; cursor: text; }
+    .toast {
+      display: inline-flex; align-items: center; gap: 7px;
+      margin-top: 14px; padding: 7px 13px; border-radius: 999px;
+      background: var(--green); color: #fff; font-size: 14px; font-weight: 600;
+      opacity: 0; transform: translateY(4px); transition: opacity .18s, transform .18s;
+      user-select: none; -webkit-user-select: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast svg { width: 15px; height: 15px; }
+
+    .confirm-area {
+      max-height: 0; opacity: 0; overflow: hidden;
+      transition: max-height .3s, opacity .3s, margin .3s;
+    }
+    .confirm-area.show { max-height: 280px; opacity: 1; margin-top: 16px; }
+    .confirm-label {
+      display: block; font-size: 14px; font-weight: 600; color: var(--ink);
+      margin: 0 0 8px; user-select: none; -webkit-user-select: none;
+    }
+    .kbd-pair { color: var(--muted); font-weight: 500; }
+    .confirm-row { display: flex; }
+    .confirm-input {
+      width: 100%; font-family: inherit; font-size: 15px; line-height: 1.5;
+      padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+      outline: none; background: #fbfdfb; color: var(--ink); resize: vertical; min-height: 66px;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .confirm-input:focus { border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(46,125,50,.12); }
+    .confirm-row.matched .confirm-input { border-color: var(--green); background: #f3faf3; }
+    .confirm-success {
+      font-size: 14.5px; font-weight: 600; color: var(--green-dark);
+      margin: 0; max-height: 0; overflow: hidden; opacity: 0;
+      transition: opacity .2s, max-height .2s, margin .2s;
+      user-select: none; -webkit-user-select: none;
+    }
+    .confirm-success.show { opacity: 1; max-height: 40px; margin: 12px 0 0; }
+
+    .step-actions { margin-top: 18px; display: none; justify-content: flex-end; }
+    .step-actions.show { display: flex; }
+    .btn-next {
+      font: inherit; font-size: 15px; font-weight: 600;
+      background: var(--green); color: #fff; border: none; border-radius: 10px;
+      padding: 10px 24px; cursor: pointer; transition: background .15s, transform .05s;
+    }
+    .btn-next:hover { background: var(--green-dark); }
+    .btn-next:active { transform: translateY(1px); }
+
+    /* ---- Step 2: turn it off ---- */
+    .status-pill {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      border-radius: 999px; padding: 2px 9px; color: #fff; background: var(--green);
+      vertical-align: middle; transition: background .2s;
+    }
+    .status-pill.off { background: #9e9e9e; }
+    .pin-tip {
+      display: flex; gap: 13px; align-items: center; margin-bottom: 16px;
+    }
+    .pin-tip .txt b { display: block; font-size: 15px; }
+    .pin-tip .txt span { color: var(--muted); font-size: 14px; }
+    .off-options { display: grid; gap: 12px; margin-bottom: 16px; }
+    .off-option { display: flex; gap: 13px; align-items: center; }
+    .off-icon {
+      flex: none; width: 40px; height: 40px; border-radius: 10px; background: var(--green-bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .off-icon svg { width: 22px; height: 22px; color: var(--green-dark); }
+    .off-option .txt { font-size: 15px; }
+    .off-option .txt b { display: block; }
+    .off-option .txt span { color: var(--muted); font-size: 14px; }
+    .badge-chip {
+      display: inline-block; background: #9e9e9e; color: #fff; font-size: 11px; font-weight: 700;
+      border-radius: 4px; padding: 1px 5px; vertical-align: middle;
+    }
+    .practice-prompt { margin: 0; font-size: 14.5px; color: var(--muted); transition: color .2s; }
+    .step.done .practice-prompt { color: var(--green-dark); font-weight: 600; }
+
+    kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px; background: #f1f6f1; border: 1px solid var(--line);
+      border-bottom-width: 2px; border-radius: 6px; padding: 2px 7px; color: var(--ink);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 128 128" aria-hidden="true">
+          <rect x="34" y="30" width="60" height="74" rx="9" fill="#ffffff"/>
+          <rect x="52" y="20" width="24" height="16" rx="5" fill="#c8e6c9" stroke="#1b5e20" stroke-width="3"/>
+          <rect x="44" y="50" width="40" height="7" rx="3.5" fill="#2e7d32"/>
+          <rect x="44" y="65" width="40" height="7" rx="3.5" fill="#a5d6a7"/>
+          <rect x="44" y="80" width="26" height="7" rx="3.5" fill="#a5d6a7"/>
+        </svg>
+      </div>
+      <h1>Select Copy is ready</h1>
+      <p class="tagline">Highlight text anywhere and it's instantly on your clipboard.</p>
+    </header>
+
+    <!-- Step 1 -->
+    <section class="step active" id="step1">
+      <div class="step-head">
+        <div class="step-num">
+          <span class="num">1</span>
+          <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="step-titles">
+          <h2>Copy without lifting a finger</h2>
+        </div>
+      </div>
+      <div class="step-body">
+        <p class="sample" id="sample">Select this sentence with your mouse, then let go. That's it.</p>
+        <div class="toast" id="toast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Copied to clipboard!
+        </div>
+        <div class="confirm-area" id="confirmArea">
+          <label class="confirm-label" for="confirm">Now paste it here <span class="kbd-pair"><kbd id="pasteKey">Ctrl</kbd>+<kbd>V</kbd></span></label>
+          <div class="confirm-row" id="confirmRow">
+            <textarea id="confirm" class="confirm-input" placeholder="Paste the copied text here…" autocomplete="off" spellcheck="false"></textarea>
+          </div>
+          <p class="confirm-success" id="confirmSuccess">Nice work 🎉</p>
+        </div>
+        <div class="step-actions" id="step1Actions">
+          <button type="button" class="btn-next" id="toStep2">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="step" id="step2">
+      <div class="step-head">
+        <div class="step-num">
+          <span class="num">2</span>
+          <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="step-titles">
+          <h2>Turn it off when you need to</h2>
+          <p class="step-sub">Select Copy is currently <span class="status-pill" id="statusPill">ON</span></p>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="pin-tip">
+          <div class="off-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+          </div>
+          <div class="txt">
+            <b>Pin Select Copy to your toolbar</b>
+            <span>Click the puzzle-piece icon in Chrome's toolbar, then the pin next to Select Copy, so you can always see the icon and its badge.</span>
+          </div>
+        </div>
+        <div class="off-options">
+          <div class="off-option">
+            <div class="off-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a2 2 0 0 1 2 2v0"/><rect x="7" y="3" width="10" height="4" rx="1"/><rect x="5" y="7" width="14" height="14" rx="2"/></svg>
+            </div>
+            <div class="txt">
+              <b>Click the toolbar icon</b>
+              <span>The badge shows <span class="badge-chip">OFF</span> when disabled. Click again to turn it back on.</span>
+            </div>
+          </div>
+          <div class="off-option">
+            <div class="off-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+            </div>
+            <div class="txt">
+              <b>Use the keyboard shortcut</b>
+              <span><kbd id="toggleKey">Ctrl+Shift+Y</kbd> toggles it from anywhere.</span>
+            </div>
+          </div>
+        </div>
+        <p class="practice-prompt" id="practicePrompt"></p>
+      </div>
+    </section>
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>

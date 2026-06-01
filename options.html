@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Copy options</title>
+  <style>
+    :root {
+      --green: #2e7d32;
+      --ink: #1a2e1c;
+      --muted: #5b6b5d;
+      --line: #d7e6d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; min-width: 380px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink); background: #ffffff; -webkit-font-smoothing: antialiased;
+    }
+    h1 { font-size: 18px; margin: 0 0 2px; }
+    .sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+    .row {
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 16px 0; border-top: 1px solid var(--line);
+    }
+    .label b { display: block; font-size: 14.5px; margin-bottom: 2px; }
+    .label span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+    .switch { position: relative; width: 44px; height: 26px; flex: none; }
+    .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .track {
+      position: absolute; inset: 0; background: #cfd8cf; border-radius: 999px;
+      cursor: pointer; transition: background .15s;
+    }
+    .track::before {
+      content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+      background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      transition: transform .15s;
+    }
+    input:checked + .track { background: var(--green); }
+    input:checked + .track::before { transform: translateX(18px); }
+    input:focus-visible + .track { box-shadow: 0 0 0 3px rgba(46,125,50,.25); }
+  </style>
+</head>
+<body>
+  <h1>Select Copy</h1>
+  <p class="sub">Settings</p>
+
+  <div class="row">
+    <div class="label">
+      <b>On-page copy banner</b>
+      <span>Show the bottom-right popup when text is copied or when Select Copy is toggled.</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="bannerToggle" />
+      <span class="track"></span>
+    </label>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
