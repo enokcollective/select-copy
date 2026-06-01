@@ -2,7 +2,7 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var statusItem: NSStatusItem!
+    private var statusItem: NSStatusItem?
     private let watcher = SelectionWatcher()
     private var hotKey: HotKey?
     private var onboarding: OnboardingWindowController?
@@ -43,7 +43,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Status item / menu
 
     private func setupStatusItem() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        // Honor the user's choice to hide the icon. The app keeps running; the
+        // icon comes back when Select Copy is re-opened (see
+        // applicationShouldHandleReopen).
+        guard !Settings.hideMenuBarIcon else { return }
+        guard statusItem == nil else { return }
+
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem = item
         renderIcon()
 
         let menu = NSMenu()
@@ -54,6 +61,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(bubbleItem)
         menu.addItem(.separator())
 
+        let hideItem = NSMenuItem(title: "Hide Menu Bar Icon", action: #selector(hideMenuBarIcon), keyEquivalent: "")
+        hideItem.target = self
+        menu.addItem(hideItem)
+
         let axItem = NSMenuItem(title: "Open Accessibility Settings…", action: #selector(openAX), keyEquivalent: "")
         axItem.target = self
         menu.addItem(axItem)
@@ -62,7 +73,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         quitItem.target = self
         menu.addItem(quitItem)
 
-        statusItem.menu = menu
+        item.menu = menu
         refreshChecks()
     }
 
@@ -72,7 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func renderIcon() {
-        guard let button = statusItem.button else { return }
+        guard let button = statusItem?.button else { return }
         // Text-selection glyph (a character with an I-beam cursor). The disabled
         // state is shown by dimming the same icon (appearsDisabled). Fall back to a
         // stable older symbol if this one is ever unavailable.
@@ -85,7 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func flashCopied() {
-        guard let button = statusItem.button else { return }
+        guard let button = statusItem?.button else { return }
         let config = NSImage.SymbolConfiguration(paletteColors: [.systemGreen])
         let check = NSImage(systemSymbolName: "checkmark.circle.fill", accessibilityDescription: "Copied")?
             .withSymbolConfiguration(config)
@@ -113,12 +124,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshChecks()
     }
 
+    @objc private func hideMenuBarIcon() {
+        let alert = NSAlert()
+        alert.messageText = "Hide the menu bar icon?"
+        alert.informativeText = "Select Copy keeps running in the background. To bring the icon back, open Select Copy again from Applications or Spotlight."
+        alert.addButton(withTitle: "Hide Icon")
+        alert.addButton(withTitle: "Cancel")
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        Settings.hideMenuBarIcon = true
+        if let item = statusItem {
+            NSStatusBar.system.removeStatusItem(item)
+            statusItem = nil
+        }
+    }
+
     @objc private func openAX() {
         Permissions.openAccessibilitySettings()
     }
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    // Re-opening the app (from Finder, Spotlight, etc.) while it is already
+    // running is how a hidden icon is brought back. This clears the preference
+    // so the icon stays visible until the user hides it again.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        if Settings.hideMenuBarIcon {
+            Settings.hideMenuBarIcon = false
+            setupStatusItem()
+        }
+        return true
     }
 
     // MARK: - Accessibility gating

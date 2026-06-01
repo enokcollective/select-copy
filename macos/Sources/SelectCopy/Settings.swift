@@ -9,6 +9,7 @@ enum Settings {
     private enum Key {
         static let enabled = "enabled"
         static let bubbleEnabled = "bubbleEnabled"
+        static let hideMenuBarIcon = "hideMenuBarIcon"
     }
 
     static var enabled: Bool {
@@ -19,5 +20,10 @@ enum Settings {
     static var bubbleEnabled: Bool {
         get { defaults.object(forKey: Key.bubbleEnabled) as? Bool ?? true }
         set { defaults.set(newValue, forKey: Key.bubbleEnabled) }
+    }
+
+    static var hideMenuBarIcon: Bool {
+        get { defaults.object(forKey: Key.hideMenuBarIcon) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Key.hideMenuBarIcon) }
     }
 }
