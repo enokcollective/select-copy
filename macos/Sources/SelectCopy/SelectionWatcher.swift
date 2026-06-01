@@ -6,8 +6,9 @@ import Carbon.HIToolbox
 // shift+arrow keyUp = keyboard selection. Debounced 150ms, like scheduleCopy.
 //
 // Two gates keep the ⌘C fallback from misfiring on ordinary input:
-//  - mouse: only a *drag* (mouse moved > threshold between down and up) counts;
-//    a plain click places a cursor and selects nothing, so it's ignored.
+//  - mouse: a *drag* (moved > threshold between down and up) or a multi-click
+//    (double-click selects a word, triple-click a paragraph) counts; a plain
+//    single click places a cursor and selects nothing, so it's ignored.
 //  - keyboard: only shift + navigation keys (arrows / home / end / page) count,
 //    so typing capital letters never triggers a copy.
 @MainActor
@@ -38,12 +39,13 @@ final class SelectionWatcher {
         downMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown]) { [weak self] _ in
             self?.mouseDownLocation = NSEvent.mouseLocation
         }
-        mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] _ in
+        mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] event in
             guard let self else { return }
             let up = NSEvent.mouseLocation
             let dragged = self.mouseDownLocation.map { hypot(up.x - $0.x, up.y - $0.y) > self.dragThreshold } ?? false
             self.mouseDownLocation = nil
-            if dragged { self.schedule() }
+            // clickCount >= 2 is a double/triple-click word/paragraph selection.
+            if dragged || event.clickCount >= 2 { self.schedule() }
         }
         keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyUp]) { [weak self] event in
             guard let self else { return }
