@@ -12,10 +12,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Menu items we toggle checkmarks on.
     private let enableItem = NSMenuItem(title: "Enable Select Copy", action: #selector(toggleEnabled), keyEquivalent: "")
-    private let bubbleItem = NSMenuItem(title: "Show status bubble", action: #selector(toggleBubble), keyEquivalent: "")
+    private let bubbleItem = NSMenuItem(title: "Show Copy Banner", action: #selector(toggleBubble), keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusItem()
+
+        // Self-register the native-messaging host manifest for every installed
+        // browser, pointing at wherever this app currently runs from. Idempotent
+        // and cheap, so doing it on each launch keeps the manifest correct after
+        // the app moves or a new browser is installed. (A sandboxed extension
+        // cannot do this itself, which is why the app owns it.)
+        FileLog.write("install-hosts on launch:\n\(HostInstaller.installAll())", to: Paths.coverageLogPath)
 
         // Listen for extension handshakes so browsers running the extension are
         // skipped only while their port is connected.
@@ -50,10 +57,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let axItem = NSMenuItem(title: "Open Accessibility Settings…", action: #selector(openAX), keyEquivalent: "")
         axItem.target = self
         menu.addItem(axItem)
-
-        let installItem = NSMenuItem(title: "Reinstall Browser Hosts", action: #selector(reinstallHosts), keyEquivalent: "")
-        installItem.target = self
-        menu.addItem(installItem)
 
         let quitItem = NSMenuItem(title: "Quit Select Copy", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
@@ -108,14 +111,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func toggleBubble() {
         Settings.bubbleEnabled.toggle()
         refreshChecks()
-    }
-
-    @objc private func reinstallHosts() {
-        let result = HostInstaller.installAll()
-        let alert = NSAlert()
-        alert.messageText = "Browser hosts"
-        alert.informativeText = result
-        alert.runModal()
     }
 
     @objc private func openAX() {

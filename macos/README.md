@@ -79,13 +79,11 @@ a Developer-ID-outside-the-App-Store app, like PopClip.
 
 ### Wire up the extension handshake
 
-1. Build + install the app (above), then run the installer so each browser knows
-   how to launch the host:
-   ```sh
-   /Applications/SelectCopy.app/Contents/MacOS/SelectCopy --install-hosts
-   ```
-   (Or use the menu-bar item **Reinstall Browser Hosts** — it points the manifest
-   at wherever the app currently runs from.)
+1. Build + install the app (above). On every launch it **self-registers** the
+   native-messaging host manifest for each installed browser, pointing at wherever
+   it runs from — no manual step, no menu option. (A sandboxed extension can't
+   install this itself; Chrome requires the manifest to be placed by a native
+   process.) `--install-hosts` re-runs it from the CLI if ever needed.
 2. Load the extension (the repo root) at `chrome://extensions` with Developer
    mode on. Its id should be `picanafalbiofedcmhkmacnpkogjjgdh` (pinned by `key`).
 3. Verify in `~/Library/Application Support/co.enok.selectcopy/host.log` that a
