@@ -20,7 +20,9 @@ final class BubbleController {
             backing: .buffered,
             defer: false
         )
-        panel.level = .statusBar
+        // .screenSaver (1000) so the chip draws over fullscreen video players,
+        // games, and presentation modes that raise their content above .statusBar.
+        panel.level = .screenSaver
         panel.isFloatingPanel = true
         panel.hidesOnDeactivate = false
         panel.isMovable = false
